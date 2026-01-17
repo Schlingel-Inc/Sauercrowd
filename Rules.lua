@@ -18,6 +18,15 @@ function Sauercrowd.Rules.ProhibitAuctionhouseUsage()
 	})
 end
 
+function Sauercrowd.Rules:AutoDeclineDuels()
+	if( not SauercrowdOptionsDB.auto_decline_duels ) then
+		return
+	end
+
+	StaticPopup_Hide("DUEL_REQUEST")
+	DeclineDuel()
+end
+
 function Sauercrowd.Rules:ProhibitTradeWithNonGuildMembers()
 	local tradePartner = UnitName("NPC")
 	if tradePartner then
@@ -165,4 +174,9 @@ function Sauercrowd.Rules:Initialize()
 		function()
 			Sauercrowd.Rules:ProhibitGroupingWithNonGuildMembers()
 		end, 0, "RaidRosterCheck")
+
+	Sauercrowd.EventManager:RegisterHandler("DUEL_REQUEST",
+		function()
+			Sauercrowd.Rules:AutoDeclineDuels()
+		end, 0, "DuelAutoDecline")
 end

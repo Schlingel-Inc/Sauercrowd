@@ -20,6 +20,12 @@ local UIOptions =
         variable = "deathmessages_sound",
         value = true,
     },
+    {
+        label = "Automatisches Ablehnen von Duellen",
+        description = "Lehnt automatisch alle Duell-Anfragen ab",
+        variable = "auto_decline_duels",
+        value = false,
+    },
 }
 
 local category = Settings.RegisterVerticalLayoutCategory("Sauercrowd")
