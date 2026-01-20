@@ -7,6 +7,10 @@ local ADDON_PREFIX = "SC_TAMPER"
 -- Variable to store the last attacker
 local LastAttackSource = ""
 
+-- Cooldown for sending own death to guild (seconds)
+local OWN_DEATH_COOLDOWN = 30
+local lastOwnDeathSendTime = 0
+
 Sauercrowd.DeathLogData = {}
 
 -- Process a death (from network or local)
@@ -104,7 +108,12 @@ local function processDeath(data)
 			LastAttackSource = "" -- Reset after using
 		end
 
-		SendChatMessage(guildMessageString, "GUILD")
+		-- Enforce cooldown: only send own death every OWN_DEATH_COOLDOWN seconds
+		local now = time()
+		if (now - lastOwnDeathSendTime) >= OWN_DEATH_COOLDOWN then
+			SendChatMessage(guildMessageString, "GUILD")
+			lastOwnDeathSendTime = now
+		end
 	end
 end
 

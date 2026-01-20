@@ -2,7 +2,7 @@
 ## Title: Sauercrowd
 ## Notes: Offizielles Addon zum Sauercrowd WoW HC Event
 ## Author: Cricksu, Pudi, Canasterzaster
-## Version: 1.1.0
+## Version: 1.1.1
 ## SavedVariablesPerCharacter: SauercrowdOptionsDB
 ## SavedVariables: SauercrowdTwitchHandles, SauercrowdSessions
 
