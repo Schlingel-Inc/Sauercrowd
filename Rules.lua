@@ -178,4 +178,9 @@ function Sauercrowd.Rules:Initialize()
 		function()
 			Sauercrowd.Rules:AutoDeclineDuels()
 		end, 0, "DuelAutoDecline")
+
+	Sauercrowd.EventManager:RegisterHandler("DUEL_TO_THE_DEATH_REQUESTED",
+		function()
+			Sauercrowd.Rules:AutoDeclineDuels()
+		end, 0, "DuelToDeathAutoDecline")
 end
