@@ -21,7 +21,7 @@ local UIOptions =
         value = true,
     },
     {
-        label = "Automatisches Ablehnen von Duellen",
+        label = "Duelle Ablehnen",
         description = "Lehnt automatisch alle Duell-Anfragen ab",
         variable = "auto_decline_duels",
         value = false,
