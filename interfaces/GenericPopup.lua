@@ -1,18 +1,12 @@
 Sauercrowd.Popup = {
+	---@type BackdropTemplate|table
 	activePopups = {}
 }
 
--- Creates and shows a generic popup with skull icon, title, and message
--- @param options table with fields:
---   - title: title text (required)
---   - message: message text (required)
---   - titleColor: {r, g, b} table (optional, defaults to red)
---   - messageColor: {r, g, b} table (optional, defaults to gold)
---   - borderColor: {r, g, b, a} table (optional, defaults to red)
---   - displayTime: seconds to show popup (optional, defaults to 3)
---   - playSound: sound ID to play (optional)
---   - rumble: whether to rumble the frame (optional, defaults to true)
-function Sauercrowd.Popup:Show(options)
+---Creates and shows a generic popup with skull icon, title, and message
+---@param options SC_PopupOptions
+---@return table|BackdropTemplate|nil
+function Sauercrowd.Popup:Show(options) --TODO: should use a frame pool for better performance
 	if not options or not options.title or not options.message then
 		return
 	end
@@ -26,10 +20,11 @@ function Sauercrowd.Popup:Show(options)
 	local displayTime = options.displayTime or 3
 	local playSound = options.playSound
 	local rumble = options.rumble ~= false -- default true
+	local frameHeight = options.FrameHeight or 140
 
 	-- Create the frame
 	local frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
-	frame:SetSize(350, 140)
+	frame:SetSize(350, frameHeight)
 	frame:SetPoint("TOP", UIParent, "TOP", 0, -150)
 	frame:SetBackdrop(Sauercrowd.Constants.BACKDROP)
 	frame:SetBackdropColor(0, 0, 0, 1)
@@ -86,7 +81,7 @@ function Sauercrowd.Popup:Show(options)
 	table.insert(self.activePopups, frame)
 
 	-- Schedule fade out and cleanup
-	local fadeTimer = C_Timer.NewTimer(displayTime, function()
+	C_Timer.NewTimer(displayTime, function()
 		UIFrameFadeOut(frame, 1, 1, 0)
 		C_Timer.After(1, function()
 			frame:Hide()

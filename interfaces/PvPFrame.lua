@@ -28,6 +28,7 @@ function Sauercrowd:CheckTargetPvP()
 	end
 end
 
+---@param text string
 function Sauercrowd:ShowPvPWarning(text)
 	Sauercrowd.Popup:Show({
 		title = "PvP Warnung!",
@@ -41,6 +42,7 @@ function Sauercrowd:ShowPvPWarning(text)
 	})
 end
 
+---@param frame Frame|table
 function Sauercrowd:RumbleFrame(frame)
 	if not frame then
 		return

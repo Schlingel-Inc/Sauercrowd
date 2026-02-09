@@ -1,6 +1,5 @@
 local FONT_NORMAL = "GameFontNormal"
 local FONT_SMALL = "GameFontNormalSmall"
-local FONT_HIGHLIGHT_LARGE = "GameFontHighlightLarge"
 
 -- Constants for dynamic layout
 local MIN_WIDTH = 250
@@ -12,7 +11,9 @@ local ROW_HEIGHT = 14
 local LEFT_PADDING = 10
 local RIGHT_PADDING = 10
 
--- Calculate column widths dynamically based on frame width
+---Calculate column widths dynamically based on frame width
+---@param frameWidth number
+---@return number[] columnWidths
 local function CalculateColumnLayout(frameWidth)
     local availableWidth = frameWidth - LEFT_PADDING - RIGHT_PADDING
     -- Column proportions: Name=40%, Class=40%, Level=20%
@@ -23,13 +24,16 @@ local function CalculateColumnLayout(frameWidth)
     }
 end
 
--- Calculate how many rows can fit in the frame
+---Calculate how many rows can fit in the frame
+---@param frameHeight number
+---@return number maxRows
 local function CalculateMaxRows(frameHeight)
     local availableHeight = frameHeight - HEADER_HEIGHT - 30 -- 30 for bottom padding
     return math.max(1, math.floor(availableHeight / ROW_HEIGHT))
 end
 
--- Function to update layout when frame is resized
+---Function to update layout when frame is resized
+---@param frame Frame|table
 local function UpdateDeathLogLayout(frame)
     if not frame.columnHeaders or not frame.rows then return end
 
@@ -122,12 +126,12 @@ function Sauercrowd:CreateMiniDeathLog()
     end
 
     frame:SetBackdrop({
-	bgFile = "Interface\\BUTTONS\\WHITE8X8",
-	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	tile = true,
-	tileSize = 16,
-	edgeSize = 16,
-	insets = { left = 4, right = 4, top = 4, bottom = 4 }
+        bgFile = "Interface\\BUTTONS\\WHITE8X8",
+        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+        tile = true,
+        tileSize = 16,
+        edgeSize = 16,
+        insets = { left = 4, right = 4, top = 4, bottom = 4 }
     })
     frame:SetBackdropColor(0.1, 0, 0, 0.8)
     frame:SetBackdropBorderColor(0.8, 0, 0, 1)
@@ -136,10 +140,10 @@ function Sauercrowd:CreateMiniDeathLog()
     frame:EnableMouse(true)
     frame:RegisterForDrag("LeftButton")
     frame:SetScript("OnDragStart", frame.StartMoving)
-    frame:SetScript("OnDragStop", function(self)
-        self:StopMovingOrSizing()
+    frame:SetScript("OnDragStop", function(fSelf)
+        fSelf:StopMovingOrSizing()
         -- Save position
-        local point, _, relativePoint, xOfs, yOfs = self:GetPoint()
+        local point, _, relativePoint, xOfs, yOfs = fSelf:GetPoint()
         SauercrowdOptionsDB = SauercrowdOptionsDB or {}
         SauercrowdOptionsDB["deathlog_position"] = {
             point = point,
@@ -373,11 +377,8 @@ function Sauercrowd:ToggleDeathLogWindow()
     if not self.MiniDeathLogFrame then
         self:CreateMiniDeathLog()
         self:UpdateMiniDeathLog()
-        self.MiniDeathLogFrame:Show()
-    elseif self.MiniDeathLogFrame:IsShown() then
-        self.MiniDeathLogFrame:Hide()
-    else
+    elseif not self.MiniDeathLogFrame:IsShown() then
         self:UpdateMiniDeathLog()
-        self.MiniDeathLogFrame:Show()
     end
+    self.MiniDeathLogFrame:SetShown(not self.MiniDeathLogFrame:IsShown())
 end

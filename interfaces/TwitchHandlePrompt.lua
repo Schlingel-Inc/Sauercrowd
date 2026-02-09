@@ -1,7 +1,12 @@
 -- Initialize the saved variable if needed
 function Sauercrowd:InitializeTwitchHandles()
     if not SauercrowdTwitchHandles then
-        SauercrowdTwitchHandles = { handle = nil, deaths = 0 }
+        SauercrowdTwitchHandles = {
+            ---@type string|nil Account-wide Twitch handle
+            handle = nil,
+            ---@type number Account-wide death count
+            deaths = 0
+        }
     end
     -- Ensure deaths counter exists for existing installations
     if SauercrowdTwitchHandles.deaths == nil then
@@ -9,15 +14,18 @@ function Sauercrowd:InitializeTwitchHandles()
     end
 end
 
--- Pending handle storage (not saved, session-only)
+---Pending handle storage (not saved, session-only)
+---@type string|nil
 local pendingTwitchHandle = nil
 
--- Get the account-wide Twitch handle
+---Get the account-wide Twitch handle
+---@return string|nil twitchHandle
 function Sauercrowd:GetTwitchHandle()
     return SauercrowdTwitchHandles and SauercrowdTwitchHandles.handle
 end
 
--- Get the account-wide death count
+---Get the account-wide death count
+---@return number deathCount
 function Sauercrowd:GetDeathCount()
     Sauercrowd:InitializeTwitchHandles()
     return SauercrowdTwitchHandles.deaths or 0
@@ -36,6 +44,7 @@ function Sauercrowd:IncrementDeathCount()
 end
 
 -- Set the account-wide Twitch handle
+---@param handle string
 function Sauercrowd:SetTwitchHandle(handle)
     Sauercrowd:InitializeTwitchHandles()
     SauercrowdTwitchHandles.handle = handle
@@ -49,6 +58,8 @@ function Sauercrowd:SetTwitchHandle(handle)
 end
 
 -- Internal function to update guild note
+---@param handle string
+---@param showMessages boolean !unused!
 local function UpdateGuildNote(handle, showMessages)
     if not IsInGuild() then
         -- Store as pending if not in guild
@@ -85,11 +96,13 @@ local function UpdateGuildNote(handle, showMessages)
 end
 
 -- Update guild note to include Twitch handle (shows user feedback)
+---@param handle string
 function Sauercrowd:UpdateGuildNoteWithHandle(handle)
     UpdateGuildNote(handle, true)
 end
 
 -- Update guild note to include Twitch handle (silent, no user feedback)
+---@param handle string
 function Sauercrowd:UpdateGuildNoteWithHandleSilently(handle)
     UpdateGuildNote(handle, false)
 end
@@ -97,6 +110,7 @@ end
 local twitchPromptFrame
 
 -- Create the prompt frame
+---@return table|BackdropTemplate
 local function CreateTwitchHandlePrompt()
     local frame = CreateFrame("Frame", "SauercrowdTwitchPrompt", UIParent, BackdropTemplateMixin and "BackdropTemplate")
     frame:SetSize(550, 480)

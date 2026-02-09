@@ -1,5 +1,30 @@
 # 1.1.1
 
+### Mail Protection Verbesserungen
+- **Postal Addon Bypass geschlossen**: Behebt kritische Sicherheitslücke wo Postal Addon die Mail-Protection umgehen konnte
+  - `PostalSelectOpenButton` wird nun blockiert (Hauptumgehungsmethode)
+  - `PostalSelectReturnButton` wird blockiert
+  - `Postal_OpenAllMenuButton` wird blockiert
+  - `Postal_ModuleMenuButton` wird blockiert
+  - Postal Checkboxen (`PostalInboxCB1-7`) werden versteckt und deaktiviert
+  - Verhindert das Auswählen und Verarbeiten von Mail über Postal's Checkbox-System
+
+## Code-Qualität
+
+- **Mailhandler.lua**: Erweiterte Button-Blockliste (Zeilen 144-153)
+  - 4 zusätzliche Postal Buttons zur Blockliste hinzugefügt
+  - Kommentare zur Erklärung der Postal-Funktionen
+- **Mailhandler.lua**: Postal Checkbox Deaktivierung (Zeilen 180-186)
+  - Iteriert durch alle 7 sichtbaren Mail-Items pro Seite
+  - Hide() und Disable() auf allen Postal Checkboxen
+  - Verhindert UI-basierte Mail-Selektion
+
+## Technisch
+
+- Erweiterte Postal Addon Kompatibilität und Schutz
+- Mail-Protection nun resistent gegen Checkbox-basierte Umgehungen
+
+---
 ## Neue Features
 
 ### Duelle automatisch blockieren

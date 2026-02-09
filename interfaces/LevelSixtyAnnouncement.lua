@@ -59,7 +59,8 @@ animGroup:SetScript("OnFinished", function()
 	LevelSixtyFrame:Hide()
 end)
 
--- Nachricht anzeigen
+---Nachricht anzeigen
+---@param message string
 function Sauercrowd.LevelSixtyAnnouncement:ShowLevelSixtyMessage(message)
 	-- Sanitize message to prevent UI injection
 	LevelSixtyFrame.text:SetText(Sauercrowd:SanitizeText(message))

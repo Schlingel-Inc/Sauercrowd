@@ -1,6 +1,7 @@
 Sauercrowd.Death = {}
 
 local playerName = UnitName("player")
+local playerGUID = UnitGUID("player")
 local seenDeaths = {} -- Track deaths we've already processed
 local ADDON_PREFIX = "SC_TAMPER"
 
@@ -11,9 +12,11 @@ local LastAttackSource = ""
 local OWN_DEATH_COOLDOWN = 30
 local lastOwnDeathSendTime = 0
 
+---@type SC_DeathLogData[]
 Sauercrowd.DeathLogData = {}
 
--- Process a death (from network or local)
+--- Process a death (from network or local)
+---@param data SC_DeathData
 local function processDeath(data)
 	local myGuildName = GetGuildInfo("player")
 
@@ -33,20 +36,11 @@ local function processDeath(data)
 	-- If class was parsed from message, use it directly; otherwise get from class_id
 	local class = data.class or GetClassInfo(data.class_id) or "Unknown"
 
-	-- Get race info (only available for own death, not from parsed messages)
-	local raceName = "Unknown"
-	if data.race_id then
-		local raceInfo = C_CreatureInfo.GetRaceInfo(data.race_id)
-		if raceInfo then
-			raceName = raceInfo.raceName
-		end
-	end
-
 	-- Get zone info (prefer parsed zone from message, fallback to map lookup)
 	local zoneName = "Unknown"
 	if data.zone then
 		zoneName = data.zone
-	elseif data.instance_id and data.instance_id ~= 0 then
+	elseif data.instance_id and data.instance_id ~= 0 then -- TODO: instance_id is never mentioned in the code except here ???
 		zoneName = GetRealZoneText(data.instance_id) or "Unknown"
 	elseif data.map_id and data.map_id ~= 0 then
 		local zoneInfo = C_Map.GetMapInfo(data.map_id)
@@ -88,9 +82,6 @@ local function processDeath(data)
 			twitchHandle = SauercrowdTwitchHandles.handle
 		end
 
-		-- Get article (der/die) from death data
-		local article = data.article or "der"
-
 		-- Send visible message with class, article and TwitchHandle for parsing
 		-- Format: "Name (TwitchHandle) der/die Class ist mit Level X in Zone gestorben."
 		local guildMessageString
@@ -111,7 +102,7 @@ local function processDeath(data)
 		-- Enforce cooldown: only send own death every OWN_DEATH_COOLDOWN seconds
 		local now = time()
 		if (now - lastOwnDeathSendTime) >= OWN_DEATH_COOLDOWN then
-			SendChatMessage(guildMessageString, "GUILD")
+			C_ChatInfo.SendChatMessage(guildMessageString, "GUILD")
 			lastOwnDeathSendTime = now
 		end
 	end
@@ -121,7 +112,7 @@ end
 local function onPlayerDeath()
 	local _, _, race_id = UnitRace("player")
 	-- UnitClass returns gendered class name (e.g. "Kriegerin" for female, "Krieger" for male)
-	local className, classToken, class_id = UnitClass("player")
+	local className, _, class_id = UnitClass("player")
 	local guildName = GetGuildInfo("player") or ""
 	local level = UnitLevel("player")
 	local map_id = C_Map.GetBestMapForUnit("player")
@@ -162,6 +153,8 @@ end
 -- Format without handle: "Name der/die Class ist mit Level X in Zone gestorben."
 -- Old Format: "Name (Class) ist mit Level X in Zone gestorben."
 -- Oldest Format: "Name ist mit Level X in Zone gestorben."
+---@param message string
+---@return SC_DeathData|nil deathData
 local function parseGuildDeathMessage(message)
 	local name, twitchHandle, article, className, level, zone, cause
 
@@ -220,16 +213,19 @@ local function parseGuildDeathMessage(message)
 	}
 end
 
+--TODO: Adjust to use Sauercrowd.EventManager ?
 -- Event handler
 local deathFrame = CreateFrame("Frame")
 deathFrame:RegisterEvent("PLAYER_DEAD")
 deathFrame:RegisterEvent("CHAT_MSG_GUILD")
 
-deathFrame:SetScript("OnEvent", function(self, event, ...)
+deathFrame:SetScript("OnEvent", function(_, event, ...)
+	---@cast event WowEvent
 	if event == "PLAYER_DEAD" then
 		onPlayerDeath()
 	elseif event == "CHAT_MSG_GUILD" then
-		local message, sender = ...
+		---@type string
+		local message = ...
 
 		-- Parse death message from guild chat
 		local deathData = parseGuildDeathMessage(message)
@@ -242,8 +238,12 @@ deathFrame:SetScript("OnEvent", function(self, event, ...)
 	end
 end)
 
--- Handle admin message to set death count
-local function onAddonMessage(prefix, message, channel, sender)
+--- Handle admin message to set death count
+---@param prefix string
+---@param message string
+---@param _ string
+---@param sender string
+local function onAddonMessage(prefix, message, _, sender)
 	if prefix ~= ADDON_PREFIX then return end
 
 	-- Security: Only accept messages from guild members
@@ -276,16 +276,17 @@ local function onAddonMessage(prefix, message, channel, sender)
 	end
 end
 
+--TODO: Adjust to use Sauercrowd.EventManager ?
 -- CombatFrame for the last attacker
 local CombatLogFrame = CreateFrame("Frame")
 CombatLogFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 
 CombatLogFrame:SetScript("OnEvent", function()
-	local _, event, _, sourceGUID, sourceName, _, _, destGUID, destName, _, _, spellID, spellName, _, amount =
-		CombatLogGetCurrentEventInfo()
+	---@type number, CLEU_Subevent, boolean, WOWGUID, string, number, number, WOWGUID
+	local _, event, _, _, sourceName, _, _, destGUID = CombatLogGetCurrentEventInfo()
 
-	if destGUID == UnitGUID("player") then
-		if event == "SWING_DAMAGE" or event == "RANGE_DAMAGE" or event == "SPELL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE" then
+	if destGUID == playerGUID then
+		if event:match("_DAMAGE") then
 			-- Store last attack source
 			LastAttackSource = sourceName or "Unbekannt"
 		end

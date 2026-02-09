@@ -2,18 +2,20 @@
 -- Zentraler Event-Manager für das Sauercrowd Addon
 -- Verwaltet alle WoW-Events an einem Ort für bessere Performance und Wartbarkeit
 
+--- TODO: Why not make use of Interface/AddOns/Blizzard_SharedXMLBase/GlobalCallbackRegistry.lua ?
 Sauercrowd.EventManager = {
+	---@type Frame
 	frame = nil,
+	---@type table<WowEvent, SC_EventHandler[]>
 	handlers = {},  -- { eventName = { {callback, priority, enabled}, ... } }
-	registeredEvents = {}
 }
 
 --- Registriert einen Event-Handler
--- @param event string Der Name des WoW-Events (z.B. "PLAYER_DEAD")
--- @param callback function Die Funktion, die aufgerufen werden soll
--- @param priority number Optional: Priorität (höher = früher ausgeführt), Standard: 0
--- @param identifier string Optional: Eindeutiger Identifier für den Handler
--- @return string Der Identifier des registrierten Handlers
+---@param event WowEvent Der Name des WoW-Events (z.B. "PLAYER_DEAD")
+---@param callback fun(event: string, ...: any) Die Funktion, die aufgerufen werden soll
+---@param priority number|nil Optional: Priorität (höher = früher ausgeführt), Standard: 0
+---@param identifier string|nil Optional: Eindeutiger Identifier für den Handler
+---@return string id Der Identifier des registrierten Handlers
 function Sauercrowd.EventManager:RegisterHandler(event, callback, priority, identifier)
 	priority = priority or 0
 	identifier = identifier or tostring(callback)
@@ -45,17 +47,16 @@ function Sauercrowd.EventManager:RegisterHandler(event, callback, priority, iden
 	end)
 
 	-- Registriere Event beim Frame, falls noch nicht geschehen
-	if not self.registeredEvents[event] then
+	if not self.frame:IsEventRegistered(event) then
 		self.frame:RegisterEvent(event)
-		self.registeredEvents[event] = true
 	end
 
 	return identifier
 end
 
 --- Entfernt einen Event-Handler
--- @param event string Der Event-Name
--- @param identifier string Der Identifier des zu entfernenden Handlers
+---@param event WowEvent Der Event-Name
+---@param identifier string Der Identifier des zu entfernenden Handlers
 function Sauercrowd.EventManager:UnregisterHandler(event, identifier)
 	if not self.handlers[event] then return end
 
@@ -68,15 +69,14 @@ function Sauercrowd.EventManager:UnregisterHandler(event, identifier)
 	-- Wenn keine Handler mehr für dieses Event existieren, unregister vom Frame
 	if #self.handlers[event] == 0 then
 		self.frame:UnregisterEvent(event)
-		self.registeredEvents[event] = nil
 		self.handlers[event] = nil
 	end
 end
 
 --- Aktiviert oder deaktiviert einen Handler
--- @param event string Der Event-Name
--- @param identifier string Der Identifier des Handlers
--- @param enabled boolean true = aktiviert, false = deaktiviert
+---@param event WowEvent Der Event-Name
+---@param identifier string Der Identifier des Handlers
+---@param enabled boolean true = aktiviert, false = deaktiviert
 function Sauercrowd.EventManager:SetHandlerEnabled(event, identifier, enabled)
 	if not self.handlers[event] then return end
 
@@ -89,7 +89,10 @@ function Sauercrowd.EventManager:SetHandlerEnabled(event, identifier, enabled)
 end
 
 --- Hauptevent-Handler - verteilt Events an registrierte Callbacks
-local function OnEvent(self, event, ...)
+---@param _ Frame
+---@param event WowEvent
+---@param ... any
+local function OnEvent(_, event, ...)
 	local handlers = Sauercrowd.EventManager.handlers[event]
 	if not handlers then return end
 

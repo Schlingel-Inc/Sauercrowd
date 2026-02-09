@@ -8,6 +8,7 @@ end
 local function HideMinimapMail()
     local mail = MiniMapMailFrame or MiniMapMailIcon
     if not mail then return end
+		---@cast mail Frame
 
     -- Stop Blizzard from updating/showing it
     if mail.UnregisterAllEvents then
@@ -30,7 +31,7 @@ end
 
 function Sauercrowd:OnLoad()
 	-- Register addon message prefix for cross-client communication
-	C_ChatInfo.RegisterAddonMessagePrefix(Sauercrowd.prefix)
+	C_ChatInfo.RegisterAddonMessagePrefix(Sauercrowd.prefix) -- TODO: This one is unused for now??
 
 	Sauercrowd.EventManager:Initialize()
 	Sauercrowd.GuildCache:Initialize()
@@ -52,6 +53,7 @@ end
 local addonLoadedFrame = CreateFrame("Frame")
 addonLoadedFrame:RegisterEvent("ADDON_LOADED")
 addonLoadedFrame:SetScript("OnEvent", function(_, _, addonName)
+	---@cast addonName string
 	if addonName == Sauercrowd.name then
 		Sauercrowd:OnLoad()
 	end

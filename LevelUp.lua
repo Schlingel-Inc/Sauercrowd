@@ -3,9 +3,11 @@ Sauercrowd.LevelUps = {}
 local playerName = UnitName("player")
 local seenLevelSixty = {} -- Track level 60 messages we've already processed
 
--- Parse guild chat level 60 messages
--- Format: "Name (TwitchHandle) hat heldenhaft Level 60 erreicht!"
--- Format without handle: "Name hat heldenhaft Level 60 erreicht!"
+---Parse guild chat level 60 messages
+---Format: "Name (TwitchHandle) hat heldenhaft Level 60 erreicht!"
+---Format without handle: "Name hat heldenhaft Level 60 erreicht!"
+---@param message string
+---@return SC_LevelUpData|nil data
 local function parseGuildLevelSixtyMessage(message)
 	local name, twitchHandle
 
@@ -26,7 +28,8 @@ local function parseGuildLevelSixtyMessage(message)
 	}
 end
 
--- Process level 60 achievement
+---Process level 60 achievement
+---@param data SC_LevelUpData
 local function processLevelSixty(data)
 	-- Create unique ID to prevent duplicates
 	local levelSixtyID = data.name .. "-60-" .. time()
@@ -50,9 +53,11 @@ end
 local levelUpFrame = CreateFrame("Frame")
 levelUpFrame:RegisterEvent("CHAT_MSG_GUILD")
 
-levelUpFrame:SetScript("OnEvent", function(self, event, ...)
+levelUpFrame:SetScript("OnEvent", function(_, event, ...)
+	---@cast event WowEvent
 	if event == "CHAT_MSG_GUILD" then
-		local message, sender = ...
+		---@type string
+		local message = ...
 
 		-- Parse level 60 message from guild chat
 		local levelData = parseGuildLevelSixtyMessage(message)
@@ -67,11 +72,11 @@ end)
 
 function Sauercrowd.LevelUps:Initialize()
 	Sauercrowd.EventManager:RegisterHandler("PLAYER_LEVEL_UP",
+		---@param _ WowEvent
+		---@param level number
 		function(_, level)
 			for _, milestone in pairs(Sauercrowd.Constants.LEVEL_MILESTONES) do
 				if level == milestone then
-					local player = UnitName("player")
-
 					-- Special handling for Level 60
 					if level == 60 then
 						-- Get own TwitchHandle from saved data
@@ -84,21 +89,21 @@ function Sauercrowd.LevelUps:Initialize()
 						local guildMessageString
 						if twitchHandle and twitchHandle ~= "" then
 							guildMessageString = string.format("%s (%s) hat heldenhaft Level 60 erreicht!",
-								player, twitchHandle)
+								playerName, twitchHandle)
 						else
-							guildMessageString = string.format("%s hat heldenhaft Level 60 erreicht!", player)
+							guildMessageString = string.format("%s hat heldenhaft Level 60 erreicht!", playerName)
 						end
-						SendChatMessage(guildMessageString, "GUILD")
+						C_ChatInfo.SendChatMessage(guildMessageString, "GUILD")
 
 						-- Process own level 60 achievement
 						processLevelSixty({
-							name = player,
+							name = playerName,
 							twitchHandle = twitchHandle
 						})
 					else
 						-- Regular milestone message
-						local message = player .. " hat Level " .. level .. " erreicht!"
-						SendChatMessage(message, "GUILD")
+						local message = playerName .. " hat Level " .. level .. " erreicht!"
+						C_ChatInfo.SendChatMessage(message, "GUILD")
 					end
 					break
 				end

@@ -1,0 +1,277 @@
+---@meta
+
+---@class SC_DeathLogData
+---@field name string
+---@field class string
+---@field level number
+---@field zone string
+---@field twitchHandle string
+---@field cause string
+
+---@class SC_DeathData
+---@field name string
+---@field guild string
+---@field level number
+---@field zone string|nil
+---@field map_id number|nil
+---@field class string
+---@field class_id number|nil
+---@field race_id number|nil
+---@field twitchHandle string
+---@field article "die"|"der"
+---@field cause string|nil
+
+---@class SC_EventHandler
+---@field callback fun(event: string, ...: any)
+---@field priority number
+---@field enabled boolean
+---@field identifier string
+
+---@class SC_RosterMember
+---@field name string
+---@field fullName string
+---@field rank string
+---@field rankIndex number
+---@field level number
+---@field class ClassFile
+---@field classDisplayName string
+---@field zone string
+---@field publicNote string
+---@field officerNote string
+---@field isOnline boolean
+---@field status StatusEnum
+---@field yearsOffline number
+---@field monthsOffline number
+---@field daysOffline number
+---@field hoursOffline number
+---@field totalDaysOffline number
+
+---@class SC_GuildCacheStats
+---@field memberCount number Anzahl der Mitglieder im Cache
+---@field lastUpdate number Timestamp der letzten Aktualisierung (GetTime())
+---@field age number Alter des Caches in Sekunden
+---@field isValid boolean Ob der Cache noch gültig ist
+---@field expiresIn number Sekunden bis der Cache ungültig wird (0 wenn bereits ungültig)
+
+---@class SC_LevelUpData
+---@field name string
+---@field twitchHandle string|nil
+
+---@class SC_PopupOptions
+---@field title string title text (required)
+---@field message string message text (required)
+---@field titleColor {r: number, g: number, b: number}|nil table (optional, defaults to red)
+---@field messageColor {r: number, g: number, b: number}|nil table (optional, defaults to gold)
+---@field borderColor {r: number, g: number, b: number, a: number}|nil table (optional, defaults to red)
+---@field displayTime number|nil seconds to show popup (optional, defaults to 3)
+---@field playSound number|nil sound ID to play (optional)
+---@field rumble boolean|nil whether to rumble the frame (optional, defaults to true)
+---@field FrameHeight number|nil height of the popup frame (optional, defaults to 140)
+
+---@alias StatusEnum
+---| 0 None
+---| 1 AFK
+---| 2 Busy
+
+---@alias CLEU_Subevent
+---|"SWING_DAMAGE"
+---|"SWING_MISSED"
+---|"SWING_HEAL"
+---|"SWING_HEAL_ABSORBED"
+---|"SWING_ABSORBED"
+---|"SWING_ENERGIZE"
+---|"SWING_DRAIN"
+---|"SWING_LEECH"
+---|"SWING_INTERRUPT"
+---|"SWING_DISPEL"
+---|"SWING_DISPEL_FAILED"
+---|"SWING_STOLEN"
+---|"SWING_EXTRA_ATTACKS"
+---|"SWING_AURA_APPLIED"
+---|"SWING_AURA_REMOVED"
+---|"SWING_AURA_APPLIED_DOSE"
+---|"SWING_AURA_REMOVED_DOSE"
+---|"SWING_AURA_REFRESH"
+---|"SWING_AURA_BROKEN"
+---|"SWING_AURA_BROKEN_SPELL"
+---|"SWING_CAST_START"
+---|"SWING_CAST_SUCCESS"
+---|"SWING_CAST_FAILED"
+---|"SWING_INSTAKILL"
+---|"SWING_DURABILITY_DAMAGE"
+---|"SWING_DURABILITY_DAMAGE_ALL"
+---|"SWING_CREATE"
+---|"SWING_SUMMON"
+---|"SWING_RESURRECT"
+---|"SWING_EMPOWER_START"
+---|"SWING_EMPOWER_END"
+---|"SWING_EMPOWER_INTERRUPT"
+---|"RANGE_DAMAGE"
+---|"RANGE_MISSED"
+---|"RANGE_HEAL"
+---|"RANGE_HEAL_ABSORBED"
+---|"RANGE_ABSORBED"
+---|"RANGE_ENERGIZE"
+---|"RANGE_DRAIN"
+---|"RANGE_LEECH"
+---|"RANGE_INTERRUPT"
+---|"RANGE_DISPEL"
+---|"RANGE_DISPEL_FAILED"
+---|"RANGE_STOLEN"
+---|"RANGE_EXTRA_ATTACKS"
+---|"RANGE_AURA_APPLIED"
+---|"RANGE_AURA_REMOVED"
+---|"RANGE_AURA_APPLIED_DOSE"
+---|"RANGE_AURA_REMOVED_DOSE"
+---|"RANGE_AURA_REFRESH"
+---|"RANGE_AURA_BROKEN"
+---|"RANGE_AURA_BROKEN_SPELL"
+---|"RANGE_CAST_START"
+---|"RANGE_CAST_SUCCESS"
+---|"RANGE_CAST_FAILED"
+---|"RANGE_INSTAKILL"
+---|"RANGE_DURABILITY_DAMAGE"
+---|"RANGE_DURABILITY_DAMAGE_ALL"
+---|"RANGE_CREATE"
+---|"RANGE_SUMMON"
+---|"RANGE_RESURRECT"
+---|"RANGE_EMPOWER_START"
+---|"RANGE_EMPOWER_END"
+---|"RANGE_EMPOWER_INTERRUPT"
+---|"SPELL_DAMAGE"
+---|"SPELL_MISSED"
+---|"SPELL_HEAL"
+---|"SPELL_HEAL_ABSORBED"
+---|"SPELL_ABSORBED"
+---|"SPELL_ENERGIZE"
+---|"SPELL_DRAIN"
+---|"SPELL_LEECH"
+---|"SPELL_INTERRUPT"
+---|"SPELL_DISPEL"
+---|"SPELL_DISPEL_FAILED"
+---|"SPELL_STOLEN"
+---|"SPELL_EXTRA_ATTACKS"
+---|"SPELL_AURA_APPLIED"
+---|"SPELL_AURA_REMOVED"
+---|"SPELL_AURA_APPLIED_DOSE"
+---|"SPELL_AURA_REMOVED_DOSE"
+---|"SPELL_AURA_REFRESH"
+---|"SPELL_AURA_BROKEN"
+---|"SPELL_AURA_BROKEN_SPELL"
+---|"SPELL_CAST_START"
+---|"SPELL_CAST_SUCCESS"
+---|"SPELL_CAST_FAILED"
+---|"SPELL_INSTAKILL"
+---|"SPELL_DURABILITY_DAMAGE"
+---|"SPELL_DURABILITY_DAMAGE_ALL"
+---|"SPELL_CREATE"
+---|"SPELL_SUMMON"
+---|"SPELL_RESURRECT"
+---|"SPELL_EMPOWER_START"
+---|"SPELL_EMPOWER_END"
+---|"SPELL_EMPOWER_INTERRUPT"
+---|"SPELL_PERIODIC_DAMAGE"
+---|"SPELL_PERIODIC_MISSED"
+---|"SPELL_PERIODIC_HEAL"
+---|"SPELL_PERIODIC_HEAL_ABSORBED"
+---|"SPELL_PERIODIC_ABSORBED"
+---|"SPELL_PERIODIC_ENERGIZE"
+---|"SPELL_PERIODIC_DRAIN"
+---|"SPELL_PERIODIC_LEECH"
+---|"SPELL_PERIODIC_INTERRUPT"
+---|"SPELL_PERIODIC_DISPEL"
+---|"SPELL_PERIODIC_DISPEL_FAILED"
+---|"SPELL_PERIODIC_STOLEN"
+---|"SPELL_PERIODIC_EXTRA_ATTACKS"
+---|"SPELL_PERIODIC_AURA_APPLIED"
+---|"SPELL_PERIODIC_AURA_REMOVED"
+---|"SPELL_PERIODIC_AURA_APPLIED_DOSE"
+---|"SPELL_PERIODIC_AURA_REMOVED_DOSE"
+---|"SPELL_PERIODIC_AURA_REFRESH"
+---|"SPELL_PERIODIC_AURA_BROKEN"
+---|"SPELL_PERIODIC_AURA_BROKEN_SPELL"
+---|"SPELL_PERIODIC_CAST_START"
+---|"SPELL_PERIODIC_CAST_SUCCESS"
+---|"SPELL_PERIODIC_CAST_FAILED"
+---|"SPELL_PERIODIC_INSTAKILL"
+---|"SPELL_PERIODIC_DURABILITY_DAMAGE"
+---|"SPELL_PERIODIC_DURABILITY_DAMAGE_ALL"
+---|"SPELL_PERIODIC_CREATE"
+---|"SPELL_PERIODIC_SUMMON"
+---|"SPELL_PERIODIC_RESURRECT"
+---|"SPELL_PERIODIC_EMPOWER_START"
+---|"SPELL_PERIODIC_EMPOWER_END"
+---|"SPELL_PERIODIC_EMPOWER_INTERRUPT"
+---|"SPELL_BUILDING_DAMAGE"
+---|"SPELL_BUILDING_MISSED"
+---|"SPELL_BUILDING_HEAL"
+---|"SPELL_BUILDING_HEAL_ABSORBED"
+---|"SPELL_BUILDING_ABSORBED"
+---|"SPELL_BUILDING_ENERGIZE"
+---|"SPELL_BUILDING_DRAIN"
+---|"SPELL_BUILDING_LEECH"
+---|"SPELL_BUILDING_INTERRUPT"
+---|"SPELL_BUILDING_DISPEL"
+---|"SPELL_BUILDING_DISPEL_FAILED"
+---|"SPELL_BUILDING_STOLEN"
+---|"SPELL_BUILDING_EXTRA_ATTACKS"
+---|"SPELL_BUILDING_AURA_APPLIED"
+---|"SPELL_BUILDING_AURA_REMOVED"
+---|"SPELL_BUILDING_AURA_APPLIED_DOSE"
+---|"SPELL_BUILDING_AURA_REMOVED_DOSE"
+---|"SPELL_BUILDING_AURA_REFRESH"
+---|"SPELL_BUILDING_AURA_BROKEN"
+---|"SPELL_BUILDING_AURA_BROKEN_SPELL"
+---|"SPELL_BUILDING_CAST_START"
+---|"SPELL_BUILDING_CAST_SUCCESS"
+---|"SPELL_BUILDING_CAST_FAILED"
+---|"SPELL_BUILDING_INSTAKILL"
+---|"SPELL_BUILDING_DURABILITY_DAMAGE"
+---|"SPELL_BUILDING_DURABILITY_DAMAGE_ALL"
+---|"SPELL_BUILDING_CREATE"
+---|"SPELL_BUILDING_SUMMON"
+---|"SPELL_BUILDING_RESURRECT"
+---|"SPELL_BUILDING_EMPOWER_START"
+---|"SPELL_BUILDING_EMPOWER_END"
+---|"SPELL_BUILDING_EMPOWER_INTERRUPT"
+---|"ENVIRONMENTAL_DAMAGE"
+---|"ENVIRONMENTAL_MISSED"
+---|"ENVIRONMENTAL_HEAL"
+---|"ENVIRONMENTAL_HEAL_ABSORBED"
+---|"ENVIRONMENTAL_ABSORBED"
+---|"ENVIRONMENTAL_ENERGIZE"
+---|"ENVIRONMENTAL_DRAIN"
+---|"ENVIRONMENTAL_LEECH"
+---|"ENVIRONMENTAL_INTERRUPT"
+---|"ENVIRONMENTAL_DISPEL"
+---|"ENVIRONMENTAL_DISPEL_FAILED"
+---|"ENVIRONMENTAL_STOLEN"
+---|"ENVIRONMENTAL_EXTRA_ATTACKS"
+---|"ENVIRONMENTAL_AURA_APPLIED"
+---|"ENVIRONMENTAL_AURA_REMOVED"
+---|"ENVIRONMENTAL_AURA_APPLIED_DOSE"
+---|"ENVIRONMENTAL_AURA_REMOVED_DOSE"
+---|"ENVIRONMENTAL_AURA_REFRESH"
+---|"ENVIRONMENTAL_AURA_BROKEN"
+---|"ENVIRONMENTAL_AURA_BROKEN_SPELL"
+---|"ENVIRONMENTAL_CAST_START"
+---|"ENVIRONMENTAL_CAST_SUCCESS"
+---|"ENVIRONMENTAL_CAST_FAILED"
+---|"ENVIRONMENTAL_INSTAKILL"
+---|"ENVIRONMENTAL_DURABILITY_DAMAGE"
+---|"ENVIRONMENTAL_DURABILITY_DAMAGE_ALL"
+---|"ENVIRONMENTAL_CREATE"
+---|"ENVIRONMENTAL_SUMMON"
+---|"ENVIRONMENTAL_RESURRECT"
+---|"ENVIRONMENTAL_EMPOWER_START"
+---|"ENVIRONMENTAL_EMPOWER_END"
+---|"ENVIRONMENTAL_EMPOWER_INTERRUPT"
+---|"DAMAGE_SPLIT"
+---|"DAMAGE_SHIELD"
+---|"DAMAGE_SHIELD_MISSED"
+---|"ENCHANT_APPLIED"
+---|"ENCHANT_REMOVED"
+---|"PARTY_KILL"
+---|"UNIT_DIED"
+---|"UNIT_DESTROYED"
+---|"UNIT_DISSIPATES"

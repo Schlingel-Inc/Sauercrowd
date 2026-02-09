@@ -59,6 +59,7 @@ animGroup:SetScript("OnFinished", function()
 end)
 
 -- Nachricht anzeigen (simple version without queue)
+---@param message string
 function Sauercrowd.DeathAnnouncement:ShowDeathMessage(message)
 	-- Sanitize message to prevent UI injection
 	DeathMessageFrame.text:SetText(Sauercrowd:SanitizeText(message))

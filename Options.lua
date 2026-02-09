@@ -28,8 +28,11 @@ local UIOptions =
     },
 }
 
+---@type table
 local category = Settings.RegisterVerticalLayoutCategory("Sauercrowd")
 
+---@param setting table
+---@param value any
 local function OnSettingChanged(setting, value)
     local key = setting:GetVariable()
     SauercrowdOptionsDB[key] = value

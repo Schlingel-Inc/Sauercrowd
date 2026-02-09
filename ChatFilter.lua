@@ -10,7 +10,15 @@ local SC_ICON = "|TInterface\\AddOns\\Sauercrowd\\media\\minimap_sc_font.tga:16:
 -- Store original AddMessage functions for each chat frame
 local originalAddMessage = {}
 
--- Hook function to add icon for guild members
+--- Hook function to add icon for guild members
+---@param self Frame
+---@param message string
+---@param r number
+---@param g number
+---@param b number
+---@param chatID number
+---@param ... any
+---@return nil
 local function AddMessage_Hook(self, message, r, g, b, chatID, ...)
     -- Safety check: ensure GuildCache is initialized and populated
     if not Sauercrowd.GuildCache or not Sauercrowd.GuildCache.members then

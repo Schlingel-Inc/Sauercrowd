@@ -2,21 +2,25 @@
 -- Caching-System für Guild Roster Daten zur Performance-Optimierung
 
 Sauercrowd.GuildCache = {
+	---@type table<string, boolean>
 	members = {},           -- Cached guild member list (name -> true)
+	---@type SC_RosterMember[]
 	fullRoster = {},        -- Full roster data with details
 	lastUpdate = 0,         -- Timestamp of last cache update
 	isUpdating = false      -- Flag to prevent concurrent updates
 }
 
--- Prüft, ob der Cache noch gültig ist
+---Prüft, ob der Cache noch gültig ist
+---@return boolean isValid
 function Sauercrowd.GuildCache:IsValid()
 	local now = GetTime()
 	local age = now - self.lastUpdate
 	return age < Sauercrowd.Constants.COOLDOWNS.GUILD_ROSTER_CACHE
 end
 
--- Fordert ein Roster-Update vom Server an
--- Die Daten werden automatisch über den GUILD_ROSTER_UPDATE Handler verarbeitet
+---Fordert ein Roster-Update vom Server an
+---Die Daten werden automatisch über den GUILD_ROSTER_UPDATE Handler verarbeitet
+---@return boolean sentNewRequest
 function Sauercrowd.GuildCache:RequestUpdate()
 	if self.isUpdating then
 		return false
@@ -82,15 +86,15 @@ function Sauercrowd.GuildCache:ProcessRosterData()
 	self.isUpdating = false
 end
 
--- Gibt die vollständige Roster-Liste zurück (als Array mit allen Details)
--- @return table Array mit vollständigen Mitgliederdaten
+---Gibt die vollständige Roster-Liste zurück (als Array mit allen Details)
+---@return SC_RosterMember[] roster Array mit vollständigen Mitgliederdaten
 function Sauercrowd.GuildCache:GetFullRoster()
-	return self.fullRoster
+	return self.fullRoster -- TODO: Do we really want to return the roster or just copy ?
 end
 
--- Prüft schnell, ob ein Spieler in der Gilde ist
--- @param playerName string Der Name des Spielers (mit oder ohne Realm)
--- @return boolean true wenn Spieler in der Gilde ist
+---Prüft schnell, ob ein Spieler in der Gilde ist
+---@param playerName string Der Name des Spielers (mit oder ohne Realm)
+---@return boolean isGuildMember true wenn Spieler in der Gilde ist
 function Sauercrowd.GuildCache:IsGuildMember(playerName)
 	if not playerName then return false end
 
@@ -101,9 +105,9 @@ function Sauercrowd.GuildCache:IsGuildMember(playerName)
 	return self.members[shortName] == true
 end
 
--- Gibt detaillierte Informationen über ein Gildenmitglied zurück
--- @param playerName string Der Name des Spielers
--- @return table|nil Mitgliederdaten oder nil wenn nicht gefunden
+---Gibt detaillierte Informationen über ein Gildenmitglied zurück
+---@param playerName string Der Name des Spielers
+---@return SC_RosterMember|nil info Mitgliederdaten oder nil wenn nicht gefunden
 function Sauercrowd.GuildCache:GetMemberInfo(playerName)
 	if not playerName then return nil end
 
@@ -119,9 +123,9 @@ function Sauercrowd.GuildCache:GetMemberInfo(playerName)
 	return nil
 end
 
--- Gibt alle Mitglieder mit einem bestimmten Rang zurück
--- @param rankName string Der Name des Rangs (z.B. "Devschlingel")
--- @return table Array mit Mitgliedern dieses Rangs
+---Gibt alle Mitglieder mit einem bestimmten Rang zurück
+---@param rankName string Der Name des Rangs (z.B. "Devschlingel")
+---@return SC_RosterMember[] filteredRoster Array mit Mitgliedern dieses Rangs
 function Sauercrowd.GuildCache:GetMembersByRank(rankName)
 	local roster = self:GetFullRoster()
 	local result = {}
@@ -135,8 +139,8 @@ function Sauercrowd.GuildCache:GetMembersByRank(rankName)
 	return result
 end
 
--- Gibt alle online Mitglieder zurück
--- @return table Array mit online Mitgliedern
+---Gibt alle online Mitglieder zurück
+---@return SC_RosterMember[] filteredRoster Array mit online Mitgliedern
 function Sauercrowd.GuildCache:GetOnlineMembers()
 	local roster = self:GetFullRoster()
 	local result = {}
@@ -155,8 +159,8 @@ function Sauercrowd.GuildCache:ForceRefresh()
 	return self:RequestUpdate()
 end
 
--- Gibt Cache-Statistiken zurück
--- @return table Statistiken über den Cache
+---Gibt Cache-Statistiken zurück
+---@return SC_GuildCacheStats stats Statistiken über den Cache
 function Sauercrowd.GuildCache:GetStats()
 	local now = GetTime()
 	local age = now - self.lastUpdate
